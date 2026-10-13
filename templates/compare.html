@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Product Price Comparison — ShopFinder{% endblock %}
+
+{% block content %}
+<div class="container compare-container">
+    <!-- Comparison Header -->
+    <div style="margin-bottom: 2rem;">
+        <span style="color: var(--primary-600); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em;">Smart Analysis Engine</span>
+        <h1 style="font-size: 2rem; margin-top: 0.2rem; margin-bottom: 0.5rem;">Multi-Platform Comparison Matrix</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+            Compare offers across Amazon, Flipkart, Meesho, Croma, and more. Highlight lowest verified total costs (price + shipping) and historical price movements.
+        </p>
+    </div>
+
+    <!-- Dynamic Content Area (Single Product Offers or Side-by-Side Multi Products) -->
+    <div id="compareContentArea">
+        <!-- Rendered via static/js/compare.js -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/compare.js') }}"></script>
+{% endblock %}

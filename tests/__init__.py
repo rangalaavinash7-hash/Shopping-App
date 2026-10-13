@@ -1,0 +1,1 @@
+# ShopFinder Automated Test Suite

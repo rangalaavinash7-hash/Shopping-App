@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Console & Data Science Analytics — ShopFinder{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3rem 0 5rem;">
+    <!-- Dashboard Top Bar -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <span style="color: var(--primary-600); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em;">Administration & Analysis</span>
+            <h1 style="font-size: 2rem; margin-top: 0.2rem;">ShopFinder Admin Panel</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Manage demonstration products, catalog records, and inspect Pandas analytical reports.</p>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button id="openNewProductModalBtn" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg"></i> Add Demonstration Product
+            </button>
+            <a href="/api/admin/export?format=csv" class="btn btn-outline btn-sm">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+            </a>
+            <a href="/api/admin/export?format=json" class="btn btn-outline btn-sm">
+                <i class="bi bi-filetype-json"></i> Export JSON
+            </a>
+            <a href="/api/admin/export?format=xml" class="btn btn-outline btn-sm">
+                <i class="bi bi-filetype-xml"></i> Export XML
+            </a>
+        </div>
+    </div>
+
+    <!-- Unit V: Pandas Data Science Analytical Summary Cards -->
+    <div id="analyticsSummarySection" style="margin-bottom: 2.5rem;">
+        <h3 style="font-size: 1.2rem; margin-bottom: 1rem;"><i class="bi bi-graph-up-arrow text-primary"></i> Catalog Analytics (Pandas & DataFrames)</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;" id="analyticsStatCards">
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Total Active Offers</div>
+                <div style="font-size: 1.75rem; font-weight: 800; color: var(--primary-600);" id="statTotalOffers">--</div>
+            </div>
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Mean (Average) Price</div>
+                <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);" id="statMeanPrice">--</div>
+            </div>
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Median Price</div>
+                <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);" id="statMedianPrice">--</div>
+            </div>
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Average Discount</div>
+                <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent-emerald);" id="statAvgDiscount">--</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Catalog Table -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-sm); margin-bottom: 2.5rem;">
+        <h3 style="font-size: 1.2rem; margin-bottom: 1.25rem;"><i class="bi bi-box-seam text-primary"></i> Stored Product Records</h3>
+        <div style="overflow-x: auto;">
+            <table class="compare-table" style="min-width: 800px;">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th>Product Name</th>
+                        <th>Brand</th>
+                        <th>Category</th>
+                        <th>Lowest Price</th>
+                        <th>Offers</th>
+                        <th style="width: 140px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="adminProductsTableBody">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading catalog...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="productCrudModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalCrudTitle">Add Demonstration Product</h3>
+                <button class="btn-icon" id="closeCrudModalBtn"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <form id="productCrudForm">
+                <div class="modal-body">
+                    <input type="hidden" id="crudProductId" value="">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" id="crudName" class="form-control" required placeholder="e.g. Sony WH-1000XM5">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Brand</label>
+                            <input type="text" id="crudBrand" class="form-control" required placeholder="e.g. Sony">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select id="crudCategory" class="form-control" required>
+                                {% for c in categories %}
+                                <option value="{{ c.id }}">{{ c.category_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Image URL</label>
+                        <input type="url" id="crudImage" class="form-control" placeholder="https://images.unsplash.com/...">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Specifications / Key Attributes</label>
+                        <input type="text" id="crudSpecs" class="form-control" placeholder="e.g. Bluetooth 5.3, ANC, 30hrs battery">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea id="crudDesc" class="form-control" rows="2" placeholder="Brief description"></textarea>
+                    </div>
+
+                    <!-- Platform Offers Entry (for new product) -->
+                    <div id="newOffersSection" style="background: var(--bg-surface-hover); padding: 1rem; border-radius: var(--radius-md); margin-top: 1rem;">
+                        <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem;">Initial Demonstration Offer</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Platform</label>
+                                <select id="crudPlatformId" class="form-control" style="font-size: 0.85rem;">
+                                    {% for p in platforms %}
+                                    <option value="{{ p.id }}">{{ p.platform_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Current Price (₹)</label>
+                                <input type="number" id="crudOfferPrice" class="form-control" value="1499" style="font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.75rem;">Original MRP (₹)</label>
+                                <input type="number" id="crudOrigPrice" class="form-control" value="2999" style="font-size: 0.85rem;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="cancelCrudModalBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveProductBtn">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        loadAdminAnalytics();
+        loadAdminProducts();
+        initCrudModal();
+    });
+
+    async function loadAdminAnalytics() {
+        try {
+            const res = await fetch("/api/admin/analytics");
+            if (!res.ok) return;
+            const data = await res.json();
+            const stats = data.overall_statistics;
+            if (stats) {
+                document.getElementById("statTotalOffers").textContent = stats.total_records;
+                document.getElementById("statMeanPrice").textContent = "₹" + stats.mean_price.toLocaleString("en-IN");
+                document.getElementById("statMedianPrice").textContent = "₹" + stats.median_price.toLocaleString("en-IN");
+                document.getElementById("statAvgDiscount").textContent = stats.avg_discount_overall + "%";
+            }
+        } catch (e) {
+            console.error("Analytics error:", e);
+        }
+    }
+
+    async function loadAdminProducts() {
+        const tbody = document.getElementById("adminProductsTableBody");
+        try {
+            const res = await fetch("/api/admin/products");
+            const data = await res.json();
+            const products = data.products || [];
+
+            if (products.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center;">No products found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = products.map(p => `
+                <tr>
+                    <td><strong>#${p.id}</strong></td>
+                    <td>
+                        <div style="font-weight: 700; color: var(--text-main);">${p.product_name}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${p.model || ''}</div>
+                    </td>
+                    <td>${p.brand}</td>
+                    <td><span class="suggestion-badge">${p.category_name}</span></td>
+                    <td style="font-weight: 700;">₹${Number(p.min_price).toLocaleString('en-IN')}</td>
+                    <td>${p.offers_count} Offers</td>
+                    <td>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <button class="btn btn-outline btn-sm edit-prod-btn" data-id="${p.id}" data-name="${p.product_name}" data-brand="${p.brand}" data-cat="${p.category_id}" data-img="${p.image_url}" data-specs="${p.specifications || ''}" data-desc="${p.description || ''}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline btn-sm text-danger delete-prod-btn" data-id="${p.id}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
+
+            // Attach Delete & Edit listeners
+            tbody.querySelectorAll(".delete-prod-btn").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    const pid = btn.getAttribute("data-id");
+                    if (confirm(`Are you sure you want to delete Product #${pid}?`)) {
+                        const delRes = await fetch(`/api/admin/products/${pid}`, { method: "DELETE" });
+                        if (delRes.ok) {
+                            showToast("Product deleted successfully", "success");
+                            loadAdminProducts();
+                            loadAdminAnalytics();
+                        } else {
+                            showToast("Failed to delete product", "error");
+                        }
+                    }
+                });
+            });
+
+            tbody.querySelectorAll(".edit-prod-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    openEditModal({
+                        id: btn.getAttribute("data-id"),
+                        name: btn.getAttribute("data-name"),
+                        brand: btn.getAttribute("data-brand"),
+                        cat: btn.getAttribute("data-cat"),
+                        img: btn.getAttribute("data-img"),
+                        specs: btn.getAttribute("data-specs"),
+                        desc: btn.getAttribute("data-desc")
+                    });
+                });
+            });
+
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Failed to load products.</td></tr>`;
+        }
+    }
+
+    function initCrudModal() {
+        const modal = document.getElementById("productCrudModal");
+        const form = document.getElementById("productCrudForm");
+        const openBtn = document.getElementById("openNewProductModalBtn");
+        const closeBtn = document.getElementById("closeCrudModalBtn");
+        const cancelBtn = document.getElementById("cancelCrudModalBtn");
+
+        openBtn.onclick = () => {
+            document.getElementById("modalCrudTitle").textContent = "Add Demonstration Product";
+            document.getElementById("crudProductId").value = "";
+            form.reset();
+            document.getElementById("newOffersSection").style.display = "block";
+            modal.classList.add("active");
+        };
+
+        closeBtn.onclick = () => modal.classList.remove("active");
+        cancelBtn.onclick = () => modal.classList.remove("active");
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const pid = document.getElementById("crudProductId").value;
+            const payload = {
+                product_name: document.getElementById("crudName").value.trim(),
+                brand: document.getElementById("crudBrand").value.trim(),
+                category_id: parseInt(document.getElementById("crudCategory").value),
+                image_url: document.getElementById("crudImage").value.trim() || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500",
+                specifications: document.getElementById("crudSpecs").value.trim(),
+                description: document.getElementById("crudDesc").value.trim()
+            };
+
+            if (!pid) {
+                // Adding new product with initial offer
+                payload.offers = [{
+                    platform_id: parseInt(document.getElementById("crudPlatformId").value),
+                    current_price: parseFloat(document.getElementById("crudOfferPrice").value),
+                    original_price: parseFloat(document.getElementById("crudOrigPrice").value),
+                    delivery_charge: 0.0
+                }];
+
+                const res = await fetch("/api/admin/products", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showToast("Product created successfully!", "success");
+                    modal.classList.remove("active");
+                    loadAdminProducts();
+                    loadAdminAnalytics();
+                } else {
+                    const err = await res.json();
+                    showToast(err.error || "Failed to create", "error");
+                }
+            } else {
+                // Updating product
+                const res = await fetch(`/api/admin/products/${pid}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showToast("Product updated successfully!", "success");
+                    modal.classList.remove("active");
+                    loadAdminProducts();
+                } else {
+                    showToast("Update failed", "error");
+                }
+            }
+        };
+    }
+
+    function openEditModal(prod) {
+        const modal = document.getElementById("productCrudModal");
+        document.getElementById("modalCrudTitle").textContent = `Edit Product #${prod.id}`;
+        document.getElementById("crudProductId").value = prod.id;
+        document.getElementById("crudName").value = prod.name;
+        document.getElementById("crudBrand").value = prod.brand;
+        document.getElementById("crudCategory").value = prod.cat;
+        document.getElementById("crudImage").value = prod.img;
+        document.getElementById("crudSpecs").value = prod.specs;
+        document.getElementById("crudDesc").value = prod.desc;
+        document.getElementById("newOffersSection").style.display = "none";
+        modal.classList.add("active");
+    }
+</script>
+{% endblock %}

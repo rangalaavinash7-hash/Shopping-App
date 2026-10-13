@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}My Wishlist — ShopFinder{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3rem 0 5rem;">
+    <div style="margin-bottom: 2rem;">
+        <span style="color: var(--accent-rose); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em;">Saved For Later</span>
+        <h1 style="font-size: 2rem; margin-top: 0.2rem; margin-bottom: 0.5rem;">Your Monitored Wishlist</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+            Track price drops and compare store offers for all your favorite saved products.
+        </p>
+    </div>
+
+    <!-- Wishlist Container -->
+    <div id="wishlistContainer">
+        <!-- Rendered via static/js/wishlist.js -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/wishlist.js') }}"></script>
+{% endblock %}

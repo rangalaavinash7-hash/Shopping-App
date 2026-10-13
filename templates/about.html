@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}About ShopFinder & Technical Architecture{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3.5rem 0 5rem; max-width: 900px;">
+    <div style="margin-bottom: 2.5rem;">
+        <span style="color: var(--primary-600); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em;">Project Architecture</span>
+        <h1 style="font-size: 2.25rem; margin-top: 0.2rem; margin-bottom: 0.75rem;">About ShopFinder</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem;">
+            A full-stack smart shopping comparison platform designed to help shoppers search once and compare offers across multiple e-commerce websites.
+        </p>
+    </div>
+
+    <!-- Syllabus Mapping Section -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem;">
+        <h2 style="font-size: 1.35rem; margin-bottom: 1rem;"><i class="bi bi-book-half text-primary"></i> Python Syllabus Integration</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.95rem;">
+            <div>
+                <strong>Unit I (Variables, Operators, Conditionals):</strong>
+                <p style="color: var(--text-muted);">Budget level classifications (Low, Medium, High, Premium), percentage discount calculations, and conditional availability flags.</p>
+            </div>
+            <div>
+                <strong>Unit II (Functions & Reusable Types):</strong>
+                <p style="color: var(--text-muted);">Functions with parameters, return types, and default arguments: <code>search_products()</code>, <code>filter_by_budget()</code>, <code>sort_products_by_price()</code>, <code>calculate_discount()</code>, <code>validate_product_data()</code>.</p>
+            </div>
+            <div>
+                <strong>Unit III (Dictionaries, Tuples, Sets):</strong>
+                <p style="color: var(--text-muted);">Dictionaries for product payloads, tuples for immutable validation results, and sets for eliminating duplicate brand and category identifiers.</p>
+            </div>
+            <div>
+                <strong>Unit IV (Files & Object-Oriented Programming):</strong>
+                <p style="color: var(--text-muted);">Application logging in <code>app.log</code>, OOP classes (<code>Product</code>, <code>ShoppingPlatform</code>, <code>ProductOffer</code>, <code>PriceTracker</code>).</p>
+            </div>
+            <div>
+                <strong>Unit V (Data Science, JSON, XML, Pandas & DataFrames):</strong>
+                <p style="color: var(--text-muted);">RESTful JSON APIs, XML export, and Pandas DataFrames computing summary price statistics, average discounts, and platform volumes.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADS Algorithm Breakdown -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 2rem;">
+        <h2 style="font-size: 1.35rem; margin-bottom: 1rem;"><i class="bi bi-cpu text-primary"></i> Algorithms and Data Structures (ADS)</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.95rem;">
+            <div>
+                <strong>1. Trie (Prefix Tree) — Autocomplete:</strong>
+                <p style="color: var(--text-muted);">O(L) time complexity where L is the prefix length. Powers instant search bar auto-suggestions.</p>
+            </div>
+            <div>
+                <strong>2. Merge Sort (Divide & Conquer):</strong>
+                <p style="color: var(--text-muted);">Guaranteed O(N log N) sorting by price (ascending/descending), rating, and discounts.</p>
+            </div>
+            <div>
+                <strong>3. Linear Search & Binary Search:</strong>
+                <p style="color: var(--text-muted);">O(N) partial name & category matcher, and O(log N) price boundary finder on pre-sorted arrays.</p>
+            </div>
+            <div>
+                <strong>4. Min-Heap / Priority Queue:</strong>
+                <p style="color: var(--text-muted);">O(K log N) heap extraction to retrieve lowest-cost offers without sorting full arrays.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Integration Transparency Notice -->
+    <div style="background: rgba(124, 58, 237, 0.05); border: 1.5px solid var(--primary-300); border-radius: var(--radius-lg); padding: 1.75rem;">
+        <h3 style="font-size: 1.15rem; color: var(--primary-700); margin-bottom: 0.5rem;"><i class="bi bi-info-circle-fill"></i> Data Integration Transparency Notice</h3>
+        <p style="font-size: 0.9rem; color: var(--text-main); line-height: 1.6;">
+            ShopFinder currently runs on <strong>verified demonstration data</strong> stored in SQLite. Live commercial connections to Amazon Product Advertising API (PA-API) or Flipkart Affiliate Feeds require authorized partner credentials, developer API keys, and affiliate agreement approval. The codebase is architected with an extensible Adapter pattern (<code>integrations/base_adapter.py</code>) allowing live API adapters to be activated seamlessly upon credential acquisition.
+        </p>
+    </div>
+</div>
+{% endblock %}

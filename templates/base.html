@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ShopFinder — Search Once, Compare Everywhere. Compare prices, discover discounts, and track deals across Amazon, Flipkart, Meesho, Croma, and more.">
+    <title>{% block title %}ShopFinder — Search Once, Compare Everywhere{% endblock %}</title>
+
+    <!-- Google Fonts & Bootstrap Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Chart.js for Historical Price Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Master CSS Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header class="site-header">
+        <div class="container header-inner">
+            <!-- Brand Logo with Shopping Bag Icon -->
+            <a href="/" class="brand-logo" id="headerBrandLogo">
+                <div class="brand-icon-wrapper">
+                    <i class="bi bi-bag-heart-fill"></i>
+                </div>
+                <div class="brand-name">ShopFinder</div>
+            </a>
+
+            <!-- Navigation Links -->
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}"><i class="bi bi-house"></i> Home</a></li>
+                    <li><a href="/products" class="nav-link {% if request.path == '/products' %}active{% endif %}"><i class="bi bi-grid"></i> Products</a></li>
+                    <li>
+                        <a href="/compare" class="nav-link {% if request.path == '/compare' %}active{% endif %}">
+                            <i class="bi bi-arrow-left-right"></i> Compare
+                            <span class="badge-count" id="compareTrayCount" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    <li><a href="/wishlist" class="nav-link {% if request.path == '/wishlist' %}active{% endif %}"><i class="bi bi-heart"></i> Wishlist</a></li>
+                    <li><a href="/history" class="nav-link {% if request.path == '/history' %}active{% endif %}"><i class="bi bi-clock-history"></i> History</a></li>
+                    {% if session.get('is_admin') %}
+                        <li><a href="/admin" class="nav-link text-primary {% if request.path == '/admin' %}active{% endif %}"><i class="bi bi-speedometer2"></i> Admin</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+
+            <!-- Header Right Actions -->
+            <div class="header-actions">
+                <!-- Theme Toggle Button -->
+                <button class="btn-icon" id="themeToggleBtn" title="Toggle Light / Dark Mode" aria-label="Toggle Theme">
+                    <i class="bi bi-moon-stars-fill" id="themeToggleIcon"></i>
+                </button>
+
+                <!-- Authentication State -->
+                {% if session.get('user_id') %}
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">
+                            <i class="bi bi-person-circle text-primary"></i> {{ session.get('username') }}
+                        </span>
+                        <a href="/api/auth/logout" class="btn btn-outline btn-sm">Logout</a>
+                    </div>
+                {% else %}
+                    <a href="/login" class="btn btn-outline btn-sm" id="navLoginBtn">Login</a>
+                    <a href="/register" class="btn btn-primary btn-sm" id="navRegisterBtn">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Block -->
+    <main style="flex: 1;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Brand Info -->
+                <div class="footer-brand">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <div class="brand-icon-wrapper" style="width: 36px; height: 36px; font-size: 1.1rem;">
+                            <i class="bi bi-bag-heart-fill"></i>
+                        </div>
+                        <span class="brand-name" style="font-size: 1.35rem;">ShopFinder</span>
+                    </div>
+                    <p>Search once and instantly compare prices, deals, and specifications across all leading shopping platforms in India.</p>
+                    <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+                        <a href="#" class="btn-icon" style="width: 36px; height: 36px;"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="btn-icon" style="width: 36px; height: 36px;"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="btn-icon" style="width: 36px; height: 36px;"><i class="bi bi-github"></i></a>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="footer-col">
+                    <h5>Quick Explore</h5>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/products">Product Catalog</a></li>
+                        <li><a href="/compare">Comparison Engine</a></li>
+                        <li><a href="/wishlist">Saved Wishlist</a></li>
+                        <li><a href="/history">Search History</a></li>
+                    </ul>
+                </div>
+
+                <!-- Shopping Platforms -->
+                <div class="footer-col">
+                    <h5>Shopping Platforms</h5>
+                    <ul class="footer-links">
+                        <li><a href="/products?platform_id=1">Amazon Deals</a></li>
+                        <li><a href="/products?platform_id=2">Flipkart Offers</a></li>
+                        <li><a href="/products?platform_id=3">Meesho Wholesale</a></li>
+                        <li><a href="/products?platform_id=4">Croma Electronics</a></li>
+                        <li><a href="/products?platform_id=5">Reliance Digital</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company & Syllabus -->
+                <div class="footer-col">
+                    <h5>About ShopFinder</h5>
+                    <ul class="footer-links">
+                        <li><a href="/about">About & Architecture</a></li>
+                        <li><a href="/contact">Contact Support</a></li>
+                        <li><a href="/admin">Admin Panel</a></li>
+                        <li><span style="font-size: 0.8rem; color: var(--accent-emerald); font-weight: 600;"><i class="bi bi-shield-check"></i> Python Full-Stack & ADS</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <p>&copy; 2026 ShopFinder Inc. All rights reserved. Built with Python, Flask, SQLite, and Vanilla JS.</p>
+                <p style="color: var(--text-light); font-size: 0.8rem;">
+                    Platform logos and trademarks belong to their respective owners. Operating with verified demonstration data feeds.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

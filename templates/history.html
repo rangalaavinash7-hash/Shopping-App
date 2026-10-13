@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Search & Activity History — ShopFinder{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3rem 0 5rem; max-width: 900px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <span style="color: var(--primary-600); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em;">Activity Log</span>
+            <h1 style="font-size: 2rem; margin-top: 0.2rem;">Search History & Recent Activity</h1>
+        </div>
+        <button id="clearAllHistoryBtn" class="btn btn-outline btn-sm">
+            <i class="bi bi-trash"></i> Clear Search History
+        </button>
+    </div>
+
+    <!-- Search Queries Section -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-sm);">
+        <h3 style="font-size: 1.15rem; margin-bottom: 1.25rem;"><i class="bi bi-search text-primary"></i> Recent Search Queries</h3>
+        <div id="searchHistoryList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Loading history...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const listEl = document.getElementById("searchHistoryList");
+        const clearBtn = document.getElementById("clearAllHistoryBtn");
+
+        async function loadHistory() {
+            try {
+                const res = await fetch("/api/history");
+                const data = await res.json();
+                const items = data.history || [];
+
+                if (items.length === 0) {
+                    listEl.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">No recent searches recorded.</p>`;
+                    return;
+                }
+
+                listEl.innerHTML = items.map(item => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--bg-surface-hover); border-radius: var(--radius-md);">
+                        <a href="/products?q=${encodeURIComponent(item.search_query)}" style="font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="bi bi-clock-history text-primary"></i> ${item.search_query}
+                        </a>
+                        <span style="font-size: 0.8rem; color: var(--text-light);">${item.searched_at}</span>
+                    </div>
+                `).join("");
+            } catch (e) {
+                listEl.innerHTML = `<p style="color: var(--text-muted);">Failed to load history.</p>`;
+            }
+        }
+
+        clearBtn.addEventListener("click", async () => {
+            try {
+                const res = await fetch("/api/history", { method: "DELETE" });
+                if (res.ok) {
+                    showToast("Search history cleared", "info");
+                    loadHistory();
+                } else {
+                    showToast("Please login to manage account search history", "error");
+                }
+            } catch (e) {
+                showToast("Network error", "error");
+            }
+        });
+
+        loadHistory();
+    });
+</script>
+{% endblock %}
